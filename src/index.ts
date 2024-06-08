@@ -38,6 +38,7 @@ class ConfigParser<T extends Record<string, any>> {
         for (const file of Object.values(this.options.files)) {
             file.hotReload ??= this.options.hotReload;
             if (file.hotReload) paths.push(file.path);
+            this.debug(`Found file ${file.path}`);
             await this.load(file.path);
         }
 
@@ -45,14 +46,19 @@ class ConfigParser<T extends Record<string, any>> {
             folder.hotReload ??= this.options.hotReload;
             if (folder.hotReload) paths.push(folder.path);
             const files = await glob(folder.path, this.options.globOptions ?? {});
-            for (const file of files) await this.load(file);
+            this.debug(`Found ${files.length} files in folder "${folder.path}"`);
+            this.debug(`Files: ${files.join(", ")}`);
+            for (const file of files) {
+                this.debug(`Found file ${file}`);
+                await this.load(file);
+            }
         }
 
         if (paths.length) {
             this.debug(`Watching ${paths.length} files and folders...`)
             this.watcher = watch(paths, this.options.watchOptions);
-            this.watcher.on("add", (path) => this.debug(`Started watching ${path}`));
-            this.watcher.on("addDir", (path) => this.debug(`Started watching ${path}`));
+            this.watcher.on("add", (path) => this.debug(`Started watching "${path}"`));
+            this.watcher.on("addDir", (path) => this.debug(`Started watching "${path}"`));
             this.watcher.on("change", this.load.bind(this));
         }
     }
@@ -67,9 +73,9 @@ class ConfigParser<T extends Record<string, any>> {
     }
 
     private async load(filePath: string) {
-        if (!existsSync(filePath)) return this.debug(`[LOAD] File ${filePath} does not exist`);
-        if (isBinaryPath(filePath)) return this.debug(`[LOAD] Ignoring binary file ${filePath}`);
-        this.debug(`[LOAD] (Re)Loading file ${filePath}...`);
+        if (!existsSync(filePath)) return this.debug(`\x1b[35m[LOAD]\x1b[0m File "${filePath}" does not exist`);
+        if (isBinaryPath(filePath)) return this.debug(`\x1b[35m[LOAD]\x1b[0m Ignoring binary file "${filePath}"`);
+        this.debug(`\x1b[35m[LOAD]\x1b[0m (Re)Loading file "${filePath}"...`);
 
         const file = await readFile(filePath, { encoding: this.options.encoding ?? "utf-8" });
         const extension = path.extname(filePath)
@@ -119,19 +125,19 @@ class ConfigParser<T extends Record<string, any>> {
             if (isSchema(configOptions?.validator)) {
                 const { error } = configOptions.validator.validate(config);
                 if (error) {
-                    this.error(new Error(`Validation error in file ${filePath}: ${error.message}`));
+                    this.error(new Error(`Validation error in file "${filePath}": ${error.message}`));
                     return;
                 }
             } else {
                 if (!configOptions.validator(config)) {
-                    this.error(new Error(`Validation error in file ${filePath}`));
+                    this.error(new Error(`Validation error in file "${filePath}"`));
                     return;
                 }
             }
         }
 
         this.configs[configName as keyof T] = config;        
-        this.debug(`[LOAD] Successfully (re)loaded ${filePath}`);
+        this.debug(`\x1b[35m[LOAD]\x1b[0m Successfully (re)loaded "${filePath}"`);
     }
 
     private error(err: Error) {

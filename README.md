@@ -30,17 +30,18 @@ It's a package that parses config files from different languages. It can reload 
             }
         },
         folders: [{
-            path: "./other/configs"
-        }]
+            path: "./other/configs/*"
+        }],
+        start: false
     })
 
     // Types will be any so no intellisense
-    console.log(
+    parser.start.then(() => console.log(
         parser.configs.bot,
         parser.configs.server,
         // If other/configs has a file named test, view options for more customization of the name
         parser.configs.test
-    )
+    ))
 ```
 > TS
 ```ts
@@ -61,17 +62,18 @@ It's a package that parses config files from different languages. It can reload 
             }
         },
         folders: [{
-            path: "./other/configs"
-        }]
+            path: "./other/configs/*"
+        }],
+        start: false
     })
 
     // Types will be the types of MyConfigType
-    console.log(
+    parser.start.then(() => console.log(
         parser.configs.bot,
         parser.configs.server,
         // If other/configs has a file named test, view options for more customization of the name
         parser.configs.test
-    )
+    ))
 ```
 ### NOTE
 > If you set `start` to false, you will need to manually start the parser
@@ -125,5 +127,7 @@ Your function should take a string and return any type value. Your function can 
 - `parser`?: `(config: string) => any | Promise<any>` - The custom parser for your file. **This is entirely optional.** The parser will parse any file that is supported and will leave the rest as a `string`.
 - `validator`?: `Joi.Schema | ((config: any) => boolean)` - Can be either a [Joi](https://www.npmjs.com/package/joi) Schema or a function that takes the parsed file and returns a boolean.
 ### ConfigFolderOptions
-- `path`: `string` - The path or glob pattern to the files in a specific folder.
+- `path`: `string` - The **glob pattern** to the files in a specific folder.
 - `hotReload`?: `boolean` - Whether or not to watch this files in this folder for changes. Overrides the global `hotReload`.
+## Issues/Suggestions
+If you encounter any issues or have any suggestions, please make a github issue/comment/pr.

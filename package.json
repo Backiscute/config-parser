@@ -1,6 +1,6 @@
 {
   "name": "@backs/config-parser",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A config parser you can use in your apps. It supports hot-reloading, yaml, ini, json and jsonc.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -17,6 +17,9 @@
   },
   "keywords": [
     "yaml",
+    "yml",
+    "xml",
+    "toml",
     "ini",
     "json",
     "jsonc",
