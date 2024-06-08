@@ -73,13 +73,14 @@ class ConfigParser<T extends Record<string, any>> {
     }
 
     private async load(filePath: string) {
+        filePath = path.resolve(filePath);
         if (!existsSync(filePath)) return this.debug(`\x1b[35m[LOAD]\x1b[0m File "${filePath}" does not exist`);
         if (isBinaryPath(filePath)) return this.debug(`\x1b[35m[LOAD]\x1b[0m Ignoring binary file "${filePath}"`);
         this.debug(`\x1b[35m[LOAD]\x1b[0m (Re)Loading file "${filePath}"...`);
 
         const file = await readFile(filePath, { encoding: this.options.encoding ?? "utf-8" });
         const extension = path.extname(filePath)
-        const [configName, configOptions] = Object.entries(this.options.files).find(([, file]) => path.normalize(file.path) === path.normalize(filePath)) ?? [this.options.conservePaths ? path.normalize(filePath) : path.basename(filePath, this.options.conserveExtensions ? undefined : extension), {} as ConfigFileOptions];
+        const [configName, configOptions] = Object.entries(this.options.files).find(([, file]) => path.normalize(path.resolve(file.path)) === path.normalize(filePath)) ?? [this.options.conservePaths ? path.normalize(filePath) : path.basename(filePath, this.options.conserveExtensions ? undefined : extension), {} as ConfigFileOptions];
         let config: any;
 
         if (configOptions?.parser) {
