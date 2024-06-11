@@ -153,6 +153,10 @@ class ConfigParser<T extends Record<string, any>> {
         if (!this.options.logging?.debug) return
         console.log(`\x1b[35m[ConfigParser]\x1b[0m ${message}`);
     }
+
+    [Symbol.for('nodejs.util.inspect.custom')]() {
+        return `ConfigParser <Watching ${this.options.hotReload ? "enabled" : "disabled"}>`
+    }
 }
 
 export default ConfigParser;
