@@ -50,7 +50,7 @@ class ConfigParser<T extends Record<string, any>> {
             this.debug(`Files: ${files.join(", ")}`);
             for (const file of files) {
                 this.debug(`Found file ${file}`);
-                await this.load(file);
+                await this.load(file, { parser: folder.parsers?.[path.basename(file)], validator: folder.validators?.[path.basename(file)] });
             }
         }
 
@@ -72,7 +72,7 @@ class ConfigParser<T extends Record<string, any>> {
         this.watcher = undefined;
     }
 
-    private async load(filePath: string) {
+    private async load(filePath: string, { parser, validator }: { parser?: (config: string) => any | Promise<any>; validator?: any; } = {}) {
         filePath = path.resolve(filePath);
         if (!existsSync(filePath)) return this.debug(`\x1b[35m[LOAD]\x1b[0m File "${filePath}" does not exist`);
         if (isBinaryPath(filePath)) return this.debug(`\x1b[35m[LOAD]\x1b[0m Ignoring binary file "${filePath}"`);
@@ -91,31 +91,34 @@ class ConfigParser<T extends Record<string, any>> {
             }
         } else {
             try {
-                switch (extension) {
-                    case ".json":
-                        config = JSON.parse(file);
-                        break;
-                    case ".jsonc":
-                        config = parseJsonc(file);
-                        break;
-                    case ".ini":
-                        config = parseIni(file);
-                        break;
-                    case ".yaml":
-                    case ".yml":
-                        config = parseYaml(file);
-                        break;
-                    case ".toml":
-                        config = parseToml(file);
-                        break;
-                    case ".xml":
-                        config = new xmlParser().parse(file);
-                        break;
-                    case ".js":
-                        config = require(filePath);
-                        break;
-                    default:
-                        config = file;
+                if (this.options.parsers?.[extension]) config = await this.options.parsers[extension](file);
+                else {
+                    switch (extension) {
+                        case ".json":
+                            config = JSON.parse(file);
+                            break;
+                        case ".jsonc":
+                            config = parseJsonc(file);
+                            break;
+                        case ".ini":
+                            config = parseIni(file);
+                            break;
+                        case ".yaml":
+                        case ".yml":
+                            config = parseYaml(file);
+                            break;
+                        case ".toml":
+                            config = parseToml(file);
+                            break;
+                        case ".xml":
+                            config = new xmlParser().parse(file);
+                            break;
+                        case ".js":
+                            config = require(filePath);
+                            break;
+                        default:
+                            config = file;
+                    }
                 }
             } catch (err) {
                 this.error(err);

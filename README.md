@@ -1,4 +1,5 @@
 # Back's config parser
+Join my [discord server](https://discord.gg/xmwHqshYHF) or visit [my website](https://back.rs).
 ## What's this?
 It's a package that parses config files from different languages. It can reload them once they change and features a custom parser and validator. It supports as of now:
 - JS *(default export only)*
@@ -118,6 +119,7 @@ Your function should take a string and return any type value. Your function can 
 - `start`?: `boolean` - Whether to start parsing files as soon as the parser is created or until the `start()` function is called. Defaults to `true`.
 - `files`: `Record<string, ConfigFileOptions>` - An object of config names to load and their options.
 - `folders`: `Record<string, ConfigFolderOptions>` - An object of config folder names to load and their options.
+- `parsers`?: `Record<string, (config: string) => any | Promise<any>>` - An object containing extensions as keys and custom parser functions as values. The parser will parse any file that has that extension using that function. **This overrides the default parsers. Extensions must be preceeded by a dot, example: `.myweirdextension`.**
 - `logging`?:
     - `error`?: `boolean` - Whether or not to log any errors that happen while parsing or loading the files to the console. Defaults to `true`.
     - `debug`?: `boolean` - Whether or not to log additional info about the parser to the console. Defaults to `false`.
@@ -129,5 +131,7 @@ Your function should take a string and return any type value. Your function can 
 ### ConfigFolderOptions
 - `path`: `string` - The **glob pattern** to the files in a specific folder.
 - `hotReload`?: `boolean` - Whether or not to watch this files in this folder for changes. Overrides the global `hotReload`.
+- `parsers`?: `Record<string, (config: string) => any | Promise<any>>` - An object containing exact file names *(includes extension without the path)* as keys and custom parser functions as values. The parser will use this function to parse that specific file.
+- `validators`?: `Record<string, Joi.Schema | ((config: any) => boolean)>` - An object containing exact file names *(includes extension without the path)* as keys and validators as values.
 ## Issues/Suggestions
 If you encounter any issues or have any suggestions, please make a github issue/comment/pr.

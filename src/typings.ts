@@ -12,6 +12,7 @@ export interface ConfigParserOptions {
     start?: boolean;
     files: Record<string, ConfigFileOptions>;
     folders: ConfigFolderOptions[];
+    parsers?: Record<string, (config: string) => any | Promise<any>>;
     logging?: {
         error?: boolean;
         debug?: boolean;
@@ -28,4 +29,6 @@ export interface ConfigFileOptions {
 export interface ConfigFolderOptions {
     path: string;
     hotReload?: boolean;
+    parsers?: Record<string, (config: string) => any | Promise<any>>;
+    validators?: Record<string, Schema | ((config: any) => boolean)>;
 }
