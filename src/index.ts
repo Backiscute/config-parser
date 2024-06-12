@@ -18,6 +18,8 @@ class ConfigParser<T extends Record<string, any>> {
     private watcher?: FSWatcher;
     public configs: T = {} as T;
 
+    get isStarted() { return this.started; }
+
     constructor(options: ConfigParserOptions) {
         this.options = options;
         this.options.logging ??= { error: true, debug: false };
@@ -60,6 +62,7 @@ class ConfigParser<T extends Record<string, any>> {
             this.watcher.on("add", (path) => this.debug(`Started watching "${path}"`));
             this.watcher.on("addDir", (path) => this.debug(`Started watching "${path}"`));
             this.watcher.on("change", this.load.bind(this));
+            for (const [eventName, eventValue] of Object.entries(this.options.events ?? {})) this.watcher.on(eventName, eventValue);
         }
     }
 

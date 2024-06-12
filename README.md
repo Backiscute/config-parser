@@ -108,6 +108,8 @@ Your function should take a string and return any type value. Your function can 
 ```
 ### NOTE
 > If you're using the `folders` option to load your files and need a custom parser, you must add each file manually to the `files` option instead.
+## Listen to chokidar events
+You can listen to chokidar events by passing the events to the events property, more info in the `events` option below.
 ## Options
 ### ConfigParserOptions
 - `hotReload`?: `boolean` - Whether or not to watch the files for changes using [chokidar](https://www.npmjs.com/package/chokidar) and reload them once they change. Defaults to `true`.
@@ -123,6 +125,7 @@ Your function should take a string and return any type value. Your function can 
 - `logging`?:
     - `error`?: `boolean` - Whether or not to log any errors that happen while parsing or loading the files to the console. Defaults to `true`.
     - `debug`?: `boolean` - Whether or not to log additional info about the parser to the console. Defaults to `false`.
+- `events`?: `FSWatcherEvents` - An object containing name of the chokidar event with a function to handle it.
 ### ConfigFileOptions
 - `path`: `string` - The path to file.
 - `hotReload`?: `boolean` - Whether or not to watch this file for changes. Overrides the global `hotReload`.

@@ -1,6 +1,23 @@
 import { WatchOptions as ChokidarOptions } from "chokidar";
 import { GlobOptionsWithFileTypesUnset, GlobOptionsWithFileTypesFalse } from "glob";
 import { Schema } from "joi";
+import { Stats } from "fs";
+
+type FSWatcherEventMap = {
+    add: (path: string, stats?: Stats) => void;
+    addDir: (path: string, stats?: Stats) => void;
+    change: (path: string, stats?: Stats) => void;
+    all: (eventName: 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir', path: string, stats?: Stats) => void;
+    error: (error: Error) => void;
+    raw: (eventName: string, path: string, details: any) => void;
+    ready: () => void;
+    unlink: (path: string) => void;
+    unlinkDir: (path: string) => void;
+};
+
+type FSWatcherEvents = {
+    [K in keyof FSWatcherEventMap]?: FSWatcherEventMap[K];
+};
 
 export interface ConfigParserOptions {
     hotReload?: boolean;
@@ -17,6 +34,7 @@ export interface ConfigParserOptions {
         error?: boolean;
         debug?: boolean;
     }
+    events?: FSWatcherEvents;
 }
 
 export interface ConfigFileOptions {
