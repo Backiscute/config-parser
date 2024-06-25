@@ -1,6 +1,4 @@
 import { defineConfig } from "tsup";
-import fs from "fs";
-import path from "path";
 
 export default defineConfig({
     entry: ["src/index.ts"],
@@ -10,15 +8,14 @@ export default defineConfig({
     sourcemap: true,
     clean: true,
     shims: true,
-    async onSuccess() {
-        const distPath = path.resolve(__dirname, 'dist', 'index.js');
-
-        let content = fs.readFileSync(distPath, 'utf-8');
-        content += `
-module.exports = Object.assign(module.exports.default, module.exports);
-module.exports.default = module.exports;
-        `;
-
-        fs.writeFileSync(distPath, content, 'utf-8');
+    esbuildOptions: (options) => {
+        options.footer = {
+            js: `
+if (module.exports.default) {
+  Object.assign(module.exports.default, module.exports);
+  module.exports = module.exports.default;
+  delete module.exports.default;
+}`,
+        }
     }
 });
