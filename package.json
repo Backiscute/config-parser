@@ -10,7 +10,7 @@
     ],
     "scripts": {
         "build": "tsup",
-        "publish": "npm run build"
+        "prepublish": "npm run build"
     },
     "repository": {
         "type": "git",
