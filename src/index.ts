@@ -85,7 +85,7 @@ class ConfigParser<T extends Record<string, any>> {
             this.watcher.on("addDir", (filePath) => this.debug(`Started watching directory "${filePath}"`));
             this.watcher.on("change", (filePath) => {
                 const file = foundFiles.find((file) => path.normalize(file.path) === path.normalize(filePath));
-                this.debug(`File "${path}" has been changed`);
+                this.debug(`File "${filePath}" has been changed`);
                 this.load(filePath, { parser: file?.parser, validator: file?.validator, allowBinary: file?.allowBinary ?? false });
             });
             for (const [eventName, eventValue] of Object.entries(this.options.events ?? {})) this.watcher.on(eventName, eventValue);
