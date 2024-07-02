@@ -8,7 +8,7 @@ import { parse as parseIni } from "ini";
 import { parse as parseYaml } from "yaml";
 import { parse as parseToml } from "toml";
 import { XMLParser as xmlParser } from "fast-xml-parser"
-import { isSchema } from "joi";
+import { isSchema, Schema } from "joi";
 import isBinaryPath from "is-binary-path";
 import path from "path";
 
@@ -28,6 +28,7 @@ class ConfigParser<T extends Record<string, any>> {
         this.options.conserveExtensions ??= false;
         this.options.conservePaths ??= false;
         this.options.hotReload ??= true;
+        this.options.allowBinary ??= false;
         this.options.start ??= true;
         if (this.options.start) this.start();
     }
@@ -36,32 +37,57 @@ class ConfigParser<T extends Record<string, any>> {
         if (this.started) throw new Error("ConfigParser already started");
         this.started = true;
 
-        const paths: string[] = [];
+        const foundFiles: { path: string; validator?: Schema | ((config: any) => boolean); parser?: (config: string) => any | Promise<any>; hotReload: boolean; allowBinary: boolean; }[] = [];
         for (const file of Object.values(this.options.files)) {
             file.hotReload ??= this.options.hotReload;
-            if (file.hotReload) paths.push(file.path);
+            file.allowBinary ??= this.options.allowBinary;
+            foundFiles.push({
+                path: file.path,
+                validator: file.validator,
+                parser: file.parser,
+                hotReload: file.hotReload!,
+                allowBinary: file.allowBinary!
+            });
             this.debug(`Found file ${file.path}`);
-            await this.load(file.path);
+            await this.load(file.path, {
+                parser: file.parser,
+                validator: file.validator,
+                allowBinary: file.allowBinary ?? this.options.allowBinary!
+            });
         }
 
         for (const folder of this.options.folders) {
             folder.hotReload ??= this.options.hotReload;
-            if (folder.hotReload) paths.push(folder.path);
+            folder.allowBinary ??= this.options.allowBinary;
             const files = await glob(folder.path, this.options.globOptions ?? {});
             this.debug(`Found ${files.length} files in folder "${folder.path}"`);
             this.debug(`Files: ${files.join(", ")}`);
             for (const file of files) {
                 this.debug(`Found file ${file}`);
-                await this.load(file, { parser: folder.parsers?.[path.basename(file)], validator: folder.validators?.[path.basename(file)] });
+                await this.load(file, { parser: folder.parsers?.[path.basename(file)], validator: folder.validators?.[path.basename(file)], allowBinary: folder.allowBinary! });
+                foundFiles.push({
+                    path: file,
+                    validator: folder.validators?.[path.basename(file)],
+                    parser: folder.parsers?.[path.basename(file)],
+                    hotReload: folder.hotReload!,
+                    allowBinary: folder.allowBinary!
+                });
             }
         }
 
-        if (paths.length) {
-            this.debug(`Watching ${paths.length} files and folders...`)
-            this.watcher = watch(paths, this.options.watchOptions);
-            this.watcher.on("add", (path) => this.debug(`Started watching "${path}"`));
-            this.watcher.on("addDir", (path) => this.debug(`Started watching "${path}"`));
-            this.watcher.on("change", this.load.bind(this));
+        if (foundFiles.length) {
+            this.debug(`Watching ${foundFiles.length} files and folders...`)
+            this.watcher = watch(this.options.folders.map((f) => f.path), this.options.watchOptions);
+            foundFiles.forEach(({ path, hotReload }) => {
+                if (hotReload) this.watcher?.add(path);
+            });
+            this.watcher.on("add", (filePath) => this.debug(`Started watching file "${filePath}"`));
+            this.watcher.on("addDir", (filePath) => this.debug(`Started watching directory "${filePath}"`));
+            this.watcher.on("change", (filePath) => {
+                const file = foundFiles.find((file) => path.normalize(file.path) === path.normalize(filePath));
+                this.debug(`File "${path}" has been changed`);
+                this.load(filePath, { parser: file?.parser, validator: file?.validator, allowBinary: file?.allowBinary ?? false });
+            });
             for (const [eventName, eventValue] of Object.entries(this.options.events ?? {})) this.watcher.on(eventName, eventValue);
         }
     }
@@ -75,20 +101,20 @@ class ConfigParser<T extends Record<string, any>> {
         this.watcher = undefined;
     }
 
-    private async load(filePath: string, { parser, validator }: { parser?: (config: string) => any | Promise<any>; validator?: any; } = {}) {
+    private async load(filePath: string, { parser, validator, allowBinary }: { parser?: (config: string) => any | Promise<any>; validator?: any; allowBinary: boolean } = { allowBinary: false }) {
         filePath = path.resolve(filePath);
         if (!existsSync(filePath)) return this.debug(`\x1b[35m[LOAD]\x1b[0m File "${filePath}" does not exist`);
-        if (isBinaryPath(filePath)) return this.debug(`\x1b[35m[LOAD]\x1b[0m Ignoring binary file "${filePath}"`);
+        if (!allowBinary && isBinaryPath(filePath)) return this.debug(`\x1b[35m[LOAD]\x1b[0m Ignoring binary file "${filePath}"`);
         this.debug(`\x1b[35m[LOAD]\x1b[0m (Re)Loading file "${filePath}"...`);
 
         const file = await readFile(filePath, { encoding: this.options.encoding ?? "utf-8" });
         const extension = path.extname(filePath)
-        const [configName, configOptions] = Object.entries(this.options.files).find(([, file]) => path.normalize(path.resolve(file.path)) === path.normalize(filePath)) ?? [this.options.conservePaths ? path.normalize(filePath) : path.basename(filePath, this.options.conserveExtensions ? undefined : extension), {} as ConfigFileOptions];
+        const configName = this.options.conservePaths ? path.normalize(filePath) : path.basename(filePath, this.options.conserveExtensions ? undefined : extension)
         let config: any;
 
-        if (configOptions?.parser) {
+        if (parser) {
             try {
-                config = await configOptions.parser(file); 
+                config = await parser(file); 
             } catch (err) {
                 this.error(err);
             }
@@ -128,15 +154,15 @@ class ConfigParser<T extends Record<string, any>> {
             }
         }
 
-        if (configOptions?.validator) {
-            if (isSchema(configOptions?.validator)) {
-                const { error } = configOptions.validator.validate(config);
+        if (validator) {
+            if (isSchema(validator)) {
+                const { error } = validator.validate(config);
                 if (error) {
                     this.error(new Error(`Validation error in file "${filePath}": ${error.message}`));
                     return;
                 }
             } else {
-                if (!configOptions.validator(config)) {
+                if (!validator(config)) {
                     this.error(new Error(`Validation error in file "${filePath}"`));
                     return;
                 }

@@ -113,6 +113,7 @@ You can listen to chokidar events by passing the events to the events property, 
 ## Options
 ### ConfigParserOptions
 - `hotReload`?: `boolean` - Whether or not to watch the files for changes using [chokidar](https://www.npmjs.com/package/chokidar) and reload them once they change. Defaults to `true`.
+- `allowBinary`?: `boolean` - Whether or not to allow binary files. Defaults to `false`.
 - `watchOptions`?: `ChokidarWatchOptions` - Just the watch options from [chokidar](https://www.npmjs.com/package/chokidar).
 - `globOptions`?: `GlobOptionsWithFileTypesUnset | GlobOptionsWithFileTypesFalse` - Just the globOptions from [glob](https://www.npmjs.com/package/glob). *The option `withFileTypes` must be `undefined` or `false`.*
 - `conserveExtensions`?: `boolean` - Whether or not to conserve extensions of files when using the `folders` option to load files. Defaults to `false`.
@@ -129,11 +130,13 @@ You can listen to chokidar events by passing the events to the events property, 
 ### ConfigFileOptions
 - `path`: `string` - The path to file.
 - `hotReload`?: `boolean` - Whether or not to watch this file for changes. Overrides the global `hotReload`.
+- `allowBinary`?: `boolean` - Whether or not to allow the file even if it is a binary file. Defaults to `false`.
 - `parser`?: `(config: string) => any | Promise<any>` - The custom parser for your file. **This is entirely optional.** The parser will parse any file that is supported and will leave the rest as a `string`.
 - `validator`?: `Joi.Schema | ((config: any) => boolean)` - Can be either a [Joi](https://www.npmjs.com/package/joi) Schema or a function that takes the parsed file and returns a boolean.
 ### ConfigFolderOptions
 - `path`: `string` - The **glob pattern** to the files in a specific folder.
 - `hotReload`?: `boolean` - Whether or not to watch this files in this folder for changes. Overrides the global `hotReload`.
+- `allowBinary`?: `boolean` - Whether or not to allow binary files. Defaults to `false`.
 - `parsers`?: `Record<string, (config: string) => any | Promise<any>>` - An object containing exact file names *(includes extension without the path)* as keys and custom parser functions as values. The parser will use this function to parse that specific file.
 - `validators`?: `Record<string, Joi.Schema | ((config: any) => boolean)>` - An object containing exact file names *(includes extension without the path)* as keys and validators as values.
 ## Issues/Suggestions

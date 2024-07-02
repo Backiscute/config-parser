@@ -21,6 +21,7 @@ type FSWatcherEvents = {
 
 export interface ConfigParserOptions {
     hotReload?: boolean;
+    allowBinary?: boolean;
     watchOptions?: ChokidarOptions;
     globOptions?: GlobOptionsWithFileTypesUnset | GlobOptionsWithFileTypesFalse;
     conserveExtensions?: boolean;
@@ -40,6 +41,7 @@ export interface ConfigParserOptions {
 export interface ConfigFileOptions {
     path: string;
     hotReload?: boolean;
+    allowBinary?: boolean;
     parser?: (config: string) => any | Promise<any>;
     validator?: Schema | ((config: any) => boolean);
 }
@@ -47,6 +49,7 @@ export interface ConfigFileOptions {
 export interface ConfigFolderOptions {
     path: string;
     hotReload?: boolean;
+    allowBinary?: boolean;
     parsers?: Record<string, (config: string) => any | Promise<any>>;
     validators?: Record<string, Schema | ((config: any) => boolean)>;
 }
