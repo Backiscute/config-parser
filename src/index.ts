@@ -8,7 +8,8 @@ import { parse as parseIni } from "ini";
 import { parse as parseYaml } from "yaml";
 import { parse as parseToml } from "toml";
 import { XMLParser as xmlParser } from "fast-xml-parser"
-import { isSchema, Schema } from "joi";
+import { isSchema, Schema as JoiSchema } from "joi";
+import { ZodSchema } from "zod";
 import isBinaryPath from "is-binary-path";
 import path from "path";
 
@@ -37,7 +38,7 @@ class ConfigParser<T extends Record<string, any>> {
         if (this.started) throw new Error("ConfigParser already started");
         this.started = true;
 
-        const foundFiles: { path: string; validator?: Schema | ((config: any) => boolean); parser?: (config: string) => any | Promise<any>; hotReload: boolean; allowBinary: boolean; }[] = [];
+        const foundFiles: { path: string; validator?: JoiSchema | ZodSchema | ((config: any) => boolean); parser?: (config: string) => any | Promise<any>; hotReload: boolean; allowBinary: boolean; }[] = [];
         for (const file of Object.values(this.options.files)) {
             file.hotReload ??= this.options.hotReload;
             file.allowBinary ??= this.options.allowBinary;
@@ -159,6 +160,12 @@ class ConfigParser<T extends Record<string, any>> {
                 const { error } = validator.validate(config);
                 if (error) {
                     this.error(new Error(`Validation error in file "${filePath}": ${error.message}`));
+                    return;
+                }
+            } else if (validator instanceof ZodSchema) {
+                const { success, error } = validator.safeParse(config);
+                if (!success) {
+                    this.error(new Error(`Validation error in file "${filePath}": ${error?.message}`));
                     return;
                 }
             } else {

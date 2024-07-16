@@ -132,12 +132,12 @@ You can listen to chokidar events by passing the events to the events property, 
 - `hotReload`?: `boolean` - Whether or not to watch this file for changes. Overrides the global `hotReload`.
 - `allowBinary`?: `boolean` - Whether or not to allow the file even if it is a binary file. Defaults to `false`.
 - `parser`?: `(config: string) => any | Promise<any>` - The custom parser for your file. **This is entirely optional.** The parser will parse any file that is supported and will leave the rest as a `string`.
-- `validator`?: `Joi.Schema | ((config: any) => boolean)` - Can be either a [Joi](https://www.npmjs.com/package/joi) Schema or a function that takes the parsed file and returns a boolean.
+- `validator`?: `Joi.Schema | Zod.Schema | ((config: any) => boolean)` - Can be either a [Joi](https://www.npmjs.com/package/joi) Schema or a function that takes the parsed file and returns a boolean.
 ### ConfigFolderOptions
 - `path`: `string` - The **glob pattern** to the files in a specific folder.
 - `hotReload`?: `boolean` - Whether or not to watch this files in this folder for changes. Overrides the global `hotReload`.
 - `allowBinary`?: `boolean` - Whether or not to allow binary files. Defaults to `false`.
 - `parsers`?: `Record<string, (config: string) => any | Promise<any>>` - An object containing exact file names *(includes extension without the path)* as keys and custom parser functions as values. The parser will use this function to parse that specific file.
-- `validators`?: `Record<string, Joi.Schema | ((config: any) => boolean)>` - An object containing exact file names *(includes extension without the path)* as keys and validators as values.
+- `validators`?: `Record<string, Joi.Schema | Zod.Schema | ((config: any) => boolean)>` - An object containing exact file names *(includes extension without the path)* as keys and validators as values.
 ## Issues/Suggestions
 If you encounter any issues or have any suggestions, please make a github issue/comment/pr.

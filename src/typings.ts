@@ -1,6 +1,7 @@
 import { WatchOptions as ChokidarOptions } from "chokidar";
 import { GlobOptionsWithFileTypesUnset, GlobOptionsWithFileTypesFalse } from "glob";
-import { Schema } from "joi";
+import { Schema as JoiSchema } from "joi";
+import { ZodSchema } from "zod";
 import { Stats } from "fs";
 
 type FSWatcherEventMap = {
@@ -43,7 +44,7 @@ export interface ConfigFileOptions {
     hotReload?: boolean;
     allowBinary?: boolean;
     parser?: (config: string) => any | Promise<any>;
-    validator?: Schema | ((config: any) => boolean);
+    validator?: JoiSchema | ZodSchema | ((config: any) => boolean);
 }
 
 export interface ConfigFolderOptions {
@@ -51,5 +52,5 @@ export interface ConfigFolderOptions {
     hotReload?: boolean;
     allowBinary?: boolean;
     parsers?: Record<string, (config: string) => any | Promise<any>>;
-    validators?: Record<string, Schema | ((config: any) => boolean)>;
+    validators?: Record<string, JoiSchema | ZodSchema | ((config: any) => boolean)>;
 }
