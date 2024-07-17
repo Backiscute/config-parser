@@ -9,7 +9,7 @@ import { parse as parseYaml } from "yaml";
 import { parse as parseToml } from "toml";
 import { XMLParser as xmlParser } from "fast-xml-parser"
 import { isSchema, Schema as JoiSchema } from "joi";
-import { ZodSchema } from "zod";
+import { Schema as ZodSchema } from "zod";
 import isBinaryPath from "is-binary-path";
 import path from "path";
 
