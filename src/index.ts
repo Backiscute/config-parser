@@ -165,7 +165,7 @@ class ConfigParser<T extends Record<string, any>> {
             } else if (validator instanceof ZodSchema) {
                 const { success, error } = validator.safeParse(config);
                 if (!success) {
-                    this.error(new Error(`Validation error in file "${filePath}": ${error.errors.reduce((p, c) => p[c.path.join(".")] = c.message, {})}`));
+                    this.error(new Error(`Validation error in file "${filePath}": ${error.errors.reduce((p, c) => { p[c.path.join(".")] = c.message; return p }, {})}`));
                     return;
                 }
             } else {
