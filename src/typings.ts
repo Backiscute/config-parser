@@ -1,4 +1,4 @@
-import { WatchOptions as ChokidarOptions } from "chokidar";
+import { FSWInstanceOptions as ChokidarOptions } from "chokidar";
 import { GlobOptionsWithFileTypesUnset, GlobOptionsWithFileTypesFalse } from "glob";
 import { Schema as JoiSchema } from "joi";
 import { ZodSchema } from "zod";

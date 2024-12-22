@@ -1,6 +1,7 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
+    external: ["zod", "joi"],
     entry: ["src/index.ts"],
     format: ["cjs", "esm"],
     dts: true,

@@ -1,6 +1,6 @@
 {
     "name": "@backs/config-parser",
-    "version": "1.3.8",
+    "version": "1.4.0",
     "description": "A config parser you can use in your apps. It supports hot-reloading, yaml, ini, toml, xml, json and jsonc. Also supports custom parsers",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -39,21 +39,27 @@
     },
     "homepage": "https://github.com/backiscute/config-parser#readme",
     "dependencies": {
-        "chokidar": "^3.6.0",
-        "fast-xml-parser": "^4.4.0",
-        "glob": "^10.4.1",
-        "ini": "^4.1.3",
-        "joi": "^17.13.3",
-        "jsonc-parser": "^3.2.1",
+        "chokidar": "^4.0.3",
+        "fast-xml-parser": "^4.5.1",
+        "glob": "^11.0.0",
+        "ini": "^5.0.0",
+        "is-binary-path": "^3.0.0",
+        "jsonc-parser": "^3.3.1",
         "toml": "^3.0.0",
-        "yaml": "^2.4.3",
-        "zod": "^3.23.8"
+        "yaml": "^2.6.1"
     },
     "devDependencies": {
-        "@types/ini": "^4.1.0",
-        "@types/node": "^20.14.2",
-        "tsup": "^8.1.0",
-        "typescript": "^5.4.5"
+        "@types/ini": "^4.1.1",
+        "@types/joi": "^17.2.2",
+        "@types/node": "^22.10.2",
+        "joi": "^17.13.3",
+        "tsup": "^8.3.5",
+        "typescript": "^5.7.2",
+        "zod": "^3.24.1"
+    },
+    "peerDependencies": {
+        "joi": "^17.13.3",
+        "zod": "^3.23.8"
     },
     "publishConfig": {
         "access": "public"

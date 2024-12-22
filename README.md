@@ -139,5 +139,7 @@ You can listen to chokidar events by passing the events to the events property, 
 - `allowBinary`?: `boolean` - Whether or not to allow binary files. Defaults to `false`.
 - `parsers`?: `Record<string, (config: string) => any | Promise<any>>` - An object containing exact file names *(includes extension without the path)* as keys and custom parser functions as values. The parser will use this function to parse that specific file.
 - `validators`?: `Record<string, Joi.Schema | Zod.Schema | ((config: any) => boolean)>` - An object containing exact file names *(includes extension without the path)* as keys and validators as values.
+#### Note
+> You must bring your own zod or joi package for validation.
 ## Issues/Suggestions
 If you encounter any issues or have any suggestions, please make a github issue/comment/pr.

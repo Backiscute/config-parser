@@ -1,15 +1,16 @@
-import { ConfigFileOptions, ConfigParserOptions } from "./typings";
+import { ConfigParserOptions } from "./typings";
 import { glob } from "glob";
 import { FSWatcher, watch } from "chokidar";
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
+import { isJoiSchema, isZodSchema } from "./validation";
 import { parse as parseJsonc } from "jsonc-parser";
 import { parse as parseIni } from "ini";
 import { parse as parseYaml } from "yaml";
 import { parse as parseToml } from "toml";
 import { XMLParser as xmlParser } from "fast-xml-parser"
-import { isSchema, Schema as JoiSchema } from "joi";
-import { Schema as ZodSchema } from "zod";
+import type { Schema as JoiSchema } from "joi";
+import type { ZodSchema } from "zod";
 import isBinaryPath from "is-binary-path";
 import path from "path";
 
@@ -89,7 +90,7 @@ class ConfigParser<T extends Record<string, any>> {
                 this.debug(`File "${filePath}" has been changed`);
                 this.load(filePath, { parser: file?.parser, validator: file?.validator, allowBinary: file?.allowBinary ?? false });
             });
-            for (const [eventName, eventValue] of Object.entries(this.options.events ?? {})) this.watcher.on(eventName, eventValue);
+            for (const [eventName, eventValue] of Object.entries(this.options.events ?? {})) this.watcher.on(eventName as any, eventValue);
         }
     }
 
@@ -156,13 +157,13 @@ class ConfigParser<T extends Record<string, any>> {
         }
 
         if (validator) {
-            if (isSchema(validator)) {
+            if (isJoiSchema(validator)) {
                 const { error } = validator.validate(config);
                 if (error) {
                     this.error(new Error(`Validation error in file "${filePath}": ${error.message}`));
                     return;
                 }
-            } else if (validator instanceof ZodSchema) {
+            } else if (isZodSchema(validator)) {
                 const { success, error } = validator.safeParse(config);
                 if (!success) {
                     this.error(new Error(`Validation error in file "${filePath}": ${error.errors.reduce((p, c) => { p[c.path.join(".")] = c.message; return p }, {})}`));
