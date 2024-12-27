@@ -11,7 +11,6 @@ import { parse as parseToml } from "toml";
 import { XMLParser as xmlParser } from "fast-xml-parser"
 import type { Schema as JoiSchema } from "joi";
 import type { ZodSchema } from "zod";
-import isBinaryPath from "is-binary-path";
 import path from "path";
 
 class ConfigParser<T extends Record<string, any>> {
@@ -105,6 +104,7 @@ class ConfigParser<T extends Record<string, any>> {
 
     private async load(filePath: string, { parser, validator, allowBinary }: { parser?: (config: string) => any | Promise<any>; validator?: any; allowBinary: boolean } = { allowBinary: false }) {
         filePath = path.resolve(filePath);
+        const isBinaryPath = await import("is-binary-path").then((m) => m.default);
         if (!existsSync(filePath)) return this.debug(`\x1b[35m[LOAD]\x1b[0m File "${filePath}" does not exist`);
         if (!allowBinary && isBinaryPath(filePath)) return this.debug(`\x1b[35m[LOAD]\x1b[0m Ignoring binary file "${filePath}"`);
         this.debug(`\x1b[35m[LOAD]\x1b[0m (Re)Loading file "${filePath}"...`);
