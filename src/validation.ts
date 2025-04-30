@@ -1,22 +1,21 @@
 import type { Schema as JoiSchema } from "joi";
+import type { Schema as ZodSchema } from "zod";
 
 let Joi: typeof import("joi") | null = null;
 let Zod: typeof import("zod") | null = null;
 
 try {
-  Joi = require("joi");
-} catch (e) {}
+    Joi = require("joi");
+} catch {}
 
 try {
-  Zod = require("zod");
-} catch (e) {}
+    Zod = require("zod");
+} catch {}
 
-export function isJoiSchema(schema: any): schema is JoiSchema {
-    if (!Joi) return false;
-    return Joi.isSchema(schema);
-}
+export function isJoiSchema(schema): schema is JoiSchema {
+    return schema[Symbol.for('@hapi/joi/schema')]
+};
 
-export function isZodSchema(schema: any): schema is Zod.Schema {
-    if (!Zod) return false;
-    return schema instanceof Zod.Schema;
+export function isZodSchema(schema): schema is ZodSchema {
+    return !!Zod && Zod.ZodSchema.prototype.isPrototypeOf(schema);
 }

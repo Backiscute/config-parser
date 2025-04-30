@@ -10,8 +10,9 @@ import { parse as parseYaml } from "yaml";
 import { parse as parseToml } from "toml";
 import { XMLParser as xmlParser } from "fast-xml-parser"
 import type { Schema as JoiSchema } from "joi";
-import type { ZodSchema } from "zod";
+import type { Schema as ZodSchema } from "zod";
 import path from "path";
+
 
 class ConfigParser<T extends Record<string, any>> {
     private options: ConfigParserOptions;
@@ -195,6 +196,8 @@ class ConfigParser<T extends Record<string, any>> {
         return `ConfigParser <Watching ${this.options.hotReload ? "enabled" : "disabled"}>`
     }
 }
+
+
 
 export default ConfigParser;
 export * from "./typings";
