@@ -1,7 +1,6 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-    external: ["zod", "joi"],
     entry: ["src/index.ts"],
     format: ["cjs", "esm"],
     dts: true,
@@ -9,6 +8,7 @@ export default defineConfig({
     sourcemap: true,
     clean: true,
     shims: true,
+    minify: true,
     esbuildOptions: (options) => {
         options.footer = {
             js: `
